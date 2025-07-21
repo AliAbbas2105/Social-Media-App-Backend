@@ -18,12 +18,16 @@ This is a **backend-only** project for a simple social media application develop
 
 3. 💬 **Comments**
    - Users can comment on other users’ posts
+   - User can get comments on specific post by ID
 
 4. ❤️ **Likes**
    - Users can like other users’ posts
+   - User can get who liked on specific post by ID
+   - User can see which posts has he liked on
 
 5. ⭐ **Favourites**
    - Users can save (add to favourites) other users’ posts
+   - User can see which posts he has added to favourites
 
 ---
 
