@@ -6,6 +6,9 @@ const controller=require('../controllers/postController')
 router.use(authenticateToken);
 router.post('/create',controller.createPost);
 router.get('/timeline',controller.getTimeline);
+router.get('/timelinelikes',controller.getAllPostsWithStatus);
+
+//all /:id should be at bottom
 router.get('/:id',controller.getPostById);
 router.post('/:postId/like', controller.LikeUnlikePost);
 router.post('/:postId/comment', controller.addComment);

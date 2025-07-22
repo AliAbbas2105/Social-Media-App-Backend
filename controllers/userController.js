@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken')
 const bcrypt=require('bcrypt')
 require('dotenv').config();
-const User = require('../models/user')
+const User=require('../models/user')
 const Post = require('../models/post')
+const Favorite = require('../models/Favorite');
+const Like = require('../models/Like')
+
 const { v4: uuidv4 } = require('uuid'); //for generating unique token for sending with link in email
 const UserVerificationLink = require('../models/userLinkverification');
 const { linkEmailTemplate } = require('../utils/emailTemplates');
@@ -113,14 +116,13 @@ async function addPostToFavorites(req, res) {
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ message: 'Post not found' });
 
-    const user = await User.findById(userId);
-
-    if (user.favorites.includes(postId)) {
+    const existingFavorite = await Favorite.findOne({ user: userId, post: postId });
+    if (existingFavorite) {
       return res.status(400).json({ message: 'Post already in favorites' });
     }
 
-    user.favorites.push(postId);
-    await user.save();
+    const newFavorite = new Favorite({ user: userId, post: postId });
+    await newFavorite.save();
 
     return res.status(200).json({ message: 'Post added to favorites' });
   } catch (error) {
@@ -129,23 +131,23 @@ async function addPostToFavorites(req, res) {
   }
 }
 
+
 async function getFavorites(req, res) {
   try {
-    const user = await User.findById(req.user.id).populate({
-      path: 'favorites',
-      select: 'content author',
-      populate: { path: 'author', select: 'username' }
-    });
+    const favorites = await Favorite.find({ user: req.user.id })
+      .populate({
+        path: 'post',
+        select: 'content author',
+        populate: { path: 'author', select: 'username' }
+      });
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    const favoritePosts = user.favorites.map(post => ({
-      postId: post._id,
-      author: post.author.username,
-      content: post.content
+    const favoritePosts = favorites.map(fav => ({
+      postId: fav.post._id,
+      author: fav.post.author.username,
+      content: fav.post.content
     }));
 
-    res.status(200).json({message: 'Your favorite posts are:', data: favoritePosts});
+    res.status(200).json({ message: 'Your favorite posts are:', data: favoritePosts });
   } catch (err) {
     console.error('Error fetching favorites:', err);
     res.status(500).json({ message: 'Failed to get favorite posts' });
@@ -158,5 +160,5 @@ module.exports={
     Logout,
     ShowAllUsers,
     addPostToFavorites,
-    getFavorites
+    getFavorites,
 };

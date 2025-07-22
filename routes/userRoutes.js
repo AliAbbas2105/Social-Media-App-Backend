@@ -14,4 +14,5 @@ router.post('/logout', controller.Logout);
 router.get('/showAllUsers',controller.ShowAllUsers);
 router.post('/favorite/:postId',controller.addPostToFavorites);
 router.get('/getfavorites',controller.getFavorites);
+
 module.exports = router;
