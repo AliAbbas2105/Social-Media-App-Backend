@@ -14,7 +14,7 @@ This is a **backend-only** project for a simple social media application develop
 2. 📝 **Posts**
    - Users can create posts
    - Retrieve a specific post by its ID
-   - Timeline feature to get relevant posts
+   - Timeline feature to get all posts with isLiked and isFavorited variable
 
 3. 💬 **Comments**
    - Users can comment on other users’ posts
