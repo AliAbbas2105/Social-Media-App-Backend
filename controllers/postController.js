@@ -102,9 +102,18 @@ async function addComment(req, res) {
 async function getUsersWhoLiked(req, res) {
   try {
     const postId = req.params.postId;
-
-    const likes = await Like.find({ postId }).populate('userId', 'username');
-    const usernames = likes.map(like => like.userId.username);
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(400).json({ message: 'Post not found' });
+    }
+    
+    const likes = await Like.find({ post: postId }).populate('user', 'username');
+    const usernames = likes.map(like =>({
+      username: like.user.username
+    }));
+    console.log(likes)
+    console.log('=========')
+    console.log(usernames)
 
     res.status(200).json({ likedBy: usernames });
   } catch (err) {

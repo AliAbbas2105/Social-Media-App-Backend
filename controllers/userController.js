@@ -140,13 +140,14 @@ async function getFavorites(req, res) {
         select: 'content author',
         populate: { path: 'author', select: 'username' }
       });
-
+    
     const favoritePosts = favorites.map(fav => ({
       postId: fav.post._id,
       author: fav.post.author.username,
-      content: fav.post.content
+      content: fav.post.content,
+      provider:fav.post.author.provider
     }));
-
+    
     res.status(200).json({ message: 'Your favorite posts are:', data: favoritePosts });
   } catch (err) {
     console.error('Error fetching favorites:', err);
