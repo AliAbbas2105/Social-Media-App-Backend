@@ -182,6 +182,9 @@ async function getAllPostsWithStatus(req, res) {
     const userFavorites = await Favorite.find({ user: userId }).select('post');
     const favoritedPostIds = userFavorites.map(fav => String(fav.post));
 
+    const userComments = await Comment.find({author: userId }).select('post');
+    const commentedPostIds = userComments.map(com => String(com.post));
+
     const result = posts.map(post => {
       const postIdStr = String(post._id);
       return {
@@ -191,7 +194,8 @@ async function getAllPostsWithStatus(req, res) {
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         isLiked: likedPostIds.includes(postIdStr),
-        isFavorited: favoritedPostIds.includes(postIdStr)
+        isFavorited: favoritedPostIds.includes(postIdStr),
+        isCommented: commentedPostIds.includes(postIdStr)
       };
     });
 

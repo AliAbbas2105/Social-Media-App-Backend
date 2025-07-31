@@ -1,7 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
 const User = require('../models/user');
 
