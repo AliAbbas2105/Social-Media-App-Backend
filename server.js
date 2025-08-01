@@ -9,6 +9,7 @@ const path = require('path');
 
 const userRoutes=require('./routes/userRoutes')
 const postRoutes=require('./routes/postRoutes')
+const followRoutes = require('./routes/followRoutes');
 const GoogleRoutes = require('./routes/googleRouter');
 const User = require('./models/user');
 require('./controllers/auth-google');
@@ -53,6 +54,7 @@ app.get('/', (req, res) => {
 
 app.use('/auth', GoogleRoutes);
 app.use('/post',postRoutes)
+app.use('/follow', followRoutes);
 app.use('/',userRoutes)
 
 app.listen(PORT)

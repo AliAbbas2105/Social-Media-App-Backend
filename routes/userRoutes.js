@@ -10,9 +10,11 @@ router.get('/verify-link/:token', verifyLink);
 router.post('/login', controller.Login);
 
 router.use(authenticateToken);
+router.get('/profile/:userId', controller.getUserProfile);
 router.post('/logout', controller.Logout);
 router.get('/showAllUsers',controller.ShowAllUsers);
-router.post('/favorite/:postId',controller.addPostToFavorites);
+router.get('/showAllUsersWithStats', controller.ShowAllUsersWithStats);
 router.get('/getfavorites',controller.getFavorites);
+router.post('/favorite/:postId',controller.addPostToFavorites);
 
 module.exports = router;

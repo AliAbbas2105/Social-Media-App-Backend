@@ -5,7 +5,7 @@ const User=require('../models/user')
 const Post = require('../models/post')
 const Favorite = require('../models/Favorite');
 const Like = require('../models/Like')
-
+const Follow = require('../models/Follow');
 const { v4: uuidv4 } = require('uuid'); //for generating unique token for sending with link in email
 const UserVerificationLink = require('../models/userLinkverification');
 const { linkEmailTemplate } = require('../utils/emailTemplates');
@@ -58,7 +58,6 @@ async function Signup(req, res) {
   }
 }
 
-
 async function Login(req, res) {
   try {
     const { email, password } = req.body;
@@ -86,7 +85,6 @@ async function Login(req, res) {
   }
 }
 
-// POST /logout
 async function Logout(req, res) {
   try {
     const user = await User.findById(req.user.id);
@@ -106,6 +104,49 @@ async function Logout(req, res) {
 async function ShowAllUsers(req,res) {
     const users = await User.find().select('-password -__v')
     res.json(users);
+}
+
+async function ShowAllUsersWithStats(req, res) {
+    try {
+        const currentUserId = req.user.id;
+        
+        // Get all users except current user
+        const users = await User.find({ _id: { $ne: currentUserId } })
+            .select('-password -__v -tokenVersion');
+        
+        // Get all follow relationships where current user is the follower
+        const followingList = await Follow.find({ follower: currentUserId })
+            .select('following');
+        
+        const followingIds = new Set(
+            followingList.map(follow => follow.following.toString())
+        );
+        
+        // Get follow counts for all users in parallel
+        const usersWithFollowData = await Promise.all(
+            users.map(async (user) => {
+                const followersCount = await Follow.countDocuments({ following: user._id });
+                const followingCount = await Follow.countDocuments({ follower: user._id });
+                
+                return {
+                    ...user.toObject(),
+                    hasFollowed: followingIds.has(user._id.toString()),
+                    followersCount,
+                    followingCount
+                };
+            })
+        );
+        
+        res.status(200).json({
+            message: 'Users retrieved successfully',
+            count: usersWithFollowData.length,
+            data: usersWithFollowData
+        });
+        
+    } catch (error) {
+        console.error('Show all users error:', error);
+        res.status(500).json({ message: 'Failed to retrieve users' });
+    }
 }
 
 async function addPostToFavorites(req, res) {
@@ -131,7 +172,6 @@ async function addPostToFavorites(req, res) {
   }
 }
 
-
 async function getFavorites(req, res) {
   try {
     const favorites = await Favorite.find({ user: req.user.id })
@@ -155,11 +195,51 @@ async function getFavorites(req, res) {
   }
 }
 
+async function getUserProfile(req, res) {
+    try {
+        const userId = req.params.userId;
+        
+        const user = await User.findById(userId).select('-password -__v -tokenVersion');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Get follow counts
+        const followersCount = await Follow.countDocuments({ following: userId });
+        const followingCount = await Follow.countDocuments({ follower: userId });
+
+        // Check if current user is following this user (if authenticated)
+        let isFollowing = false;
+        if (req.user && req.user.id !== userId) {
+            const followRelation = await Follow.findOne({
+                follower: req.user.id,
+                following: userId
+            });
+            isFollowing = !!followRelation;
+        }
+
+        res.status(200).json({
+            user: {
+                ...user.toObject(),
+                followersCount,
+                followingCount,
+                isFollowing: req.user ? isFollowing : undefined
+            }
+        });
+
+    } catch (error) {
+        console.error('Get user profile error:', error);
+        res.status(500).json({ message: 'Failed to get user profile' });
+    }
+}
+
 module.exports={
     Signup,
     Login,
     Logout,
     ShowAllUsers,
+    ShowAllUsersWithStats,
     addPostToFavorites,
     getFavorites,
+    getUserProfile
 };
