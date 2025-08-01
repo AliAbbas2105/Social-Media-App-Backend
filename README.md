@@ -16,19 +16,22 @@ This is a **backend-only** project for a simple social media application develop
    - Retrieve a specific post by its ID
    - Timeline feature to get all posts with isLiked and isFavorited variable
 
-3. 💬 **Comments**
-   - Users can comment on other users’ posts
-   - User can get comments on specific post by ID
+3. 💬 ❤️**Comments & Likes**
+   - Users can comment/like on other users’ posts
+   - User can get who commented/liked on specific post by ID
 
-4. ❤️ **Likes**
-   - Users can like other users’ posts
-   - User can get who liked on specific post by ID
-   - User can see which posts has he liked on
-
-5. ⭐ **Favourites**
+4. ⭐ **Favourites**
    - Users can save (add to favourites) other users’ posts
    - User can see which posts he has added to favourites
 
+5. ➕👤 **Following/Followers**
+   - Users can follow/unfollow each other.
+   - Users can see mutual friends with other user.
+   - Users can get followes/following list.
+
+6. 🕒 **Timeline with stats**
+   - Post timeline with like/comment/favorite status.
+   - User timeline with total followers/following stats and hasFollowed status.
 ---
 
 ## 🛠 Technologies Used
